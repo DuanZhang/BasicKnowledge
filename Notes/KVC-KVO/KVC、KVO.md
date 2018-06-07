@@ -14,8 +14,8 @@
 #### KVC的基本使用
 以下为官方文档中提供的方法
 - 通过key来取值
-1. <font color=#0099ff >valueForKey:</font>
-2. valueForKeyPath:
+    ``` valueForKey:
+valueForKeyPath:
 3. dictionaryWithValuesForKeys:
 4. valueForUndefinedKey:
 5. mutableArrayValueForKey:
@@ -24,7 +24,7 @@
 8. mutableSetValueForKeyPath:
 9. mutableOrderedSetValueForKey:
 10. mutableOrderedSetValueForKeyPath:
-
+```
 - 通过key来设值
 1. setValue:forKeyPath:
 2. setValuesForKeysWithDictionary:
