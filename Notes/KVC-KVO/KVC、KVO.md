@@ -12,32 +12,32 @@
 - `KVC`(Key-Value Coding)，定义在NSKeyValueCoding.h文件中，是一个非正式协议。KVC提供了一种间接访问其属性方法或成员变量的机制，可以通过key来访问对应的属性方法或成员变量,而不需要调用明确的存取方法。可以在运行时动态的访问和修改对象的属性。
 
 #### KVC的基本使用
+以下为官方文档中提供的方法
 - 通过key来取值
-> <font color=#0099ff >valueForKey:</font>
-> valueForKeyPath:
-> dictionaryWithValuesForKeys:
-> valueForUndefinedKey:
-> mutableArrayValueForKey:
-> mutableArrayValueForKeyPath:
-> mutableSetValueForKey:
-> mutableSetValueForKeyPath:
-> mutableOrderedSetValueForKey:
-> mutableOrderedSetValueForKeyPath:
-
+1. <font color=#0099ff >valueForKey:</font>
+2. valueForKeyPath:
+3. dictionaryWithValuesForKeys:
+4. valueForUndefinedKey:
+5. mutableArrayValueForKey:
+6. mutableArrayValueForKeyPath:
+7. mutableSetValueForKey:
+8. mutableSetValueForKeyPath:
+9. mutableOrderedSetValueForKey:
+10. mutableOrderedSetValueForKeyPath:
 
 - 通过key来设值
-> setValue:forKeyPath:
-> setValuesForKeysWithDictionary:
-> setNilValueForKey:
-> setValue:forKey:
-> setValue:forUndefinedKey:
+1. setValue:forKeyPath:
+2. setValuesForKeysWithDictionary:
+3. setNilValueForKey:
+4. setValue:forKey:
+5. setValue:forUndefinedKey:
 
 - 修改默认行为
-> accessInstanceVariablesDirectly
+1. accessInstanceVariablesDirectly
 
 - 验证
-> validateValue:forKey:error:
-> validateValue:forKeyPath:error:
+1. validateValue:forKey:error:
+2. validateValue:forKeyPath:error:
 
 
 - 可以访问私有成员变量的值
