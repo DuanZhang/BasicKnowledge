@@ -51,7 +51,7 @@ KVC(Key-Value Coding)，定义在NSKeyValueCoding.h文件中，是一个非正�
 - 当一个对象调用`setValue:forKey:`方法时，方法内部会做以下操作
 1. 检查是否存在相应key的setter方法，如果存在，就调用
 2. 如果set方法不存在,并且`accessInstanceVariablesDirectly`为默认值，就查找与key相同名称并且带下划线的成员属性，如果有直接给成员属性赋值
-3. 如果还没有找到_key，则查找相同名称的属性key，如果有就直接赋值(按照`_key``_isKey``key``isKey`的顺序搜索成员名)
+3. 如果还没有找到_key，则查找相同名称的属性key，如果有就直接赋值(按照`_key、_isKey、key、isKey`的顺序搜索成员名)
 4. 如果还没有找到则调用`setValue:forUndefinedKey:`方法,默认是抛出异常
 - 当一个对象调用`valueForKey`方法时，方法内部做如下操作（暂缺）
 
