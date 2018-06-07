@@ -13,16 +13,31 @@
 
 #### KVC的基本使用
 - 通过key来取值
-> - valueForKey:
-> - valueForKeyPath:
-> - dictionaryWithValuesForKeys:
-> - valueForUndefinedKey:
-> - mutableArrayValueForKey:
-> - mutableArrayValueForKeyPath:
-> - mutableSetValueForKey:
-> - mutableSetValueForKeyPath:
-> - mutableOrderedSetValueForKey:
-> - mutableOrderedSetValueForKeyPath:
+> <font color=#0099ff >valueForKey:</font>
+> valueForKeyPath:
+> dictionaryWithValuesForKeys:
+> valueForUndefinedKey:
+> mutableArrayValueForKey:
+> mutableArrayValueForKeyPath:
+> mutableSetValueForKey:
+> mutableSetValueForKeyPath:
+> mutableOrderedSetValueForKey:
+> mutableOrderedSetValueForKeyPath:
+
+
+- 通过key来设值
+> setValue:forKeyPath:
+> setValuesForKeysWithDictionary:
+> setNilValueForKey:
+> setValue:forKey:
+> setValue:forUndefinedKey:
+
+- 修改默认行为
+> accessInstanceVariablesDirectly
+
+- 验证
+> validateValue:forKey:error:
+> validateValue:forKeyPath:error:
 
 
 - 可以访问私有成员变量的值
