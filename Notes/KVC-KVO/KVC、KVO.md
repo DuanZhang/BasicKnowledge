@@ -97,6 +97,7 @@ KVO(Key-Value Observing),利用一个key来找到某个属性并监听其值的�
 3. 移除观察者
 
 #### KVO的底层实现
+![KVO实现原理](https://github.com/DuanZhang/BasicKnowledge/blob/master/Notes/KVC-KVO/1429890-b28e010d3a7dbdb8.png)
 1. KVO是基于runtime机制实现的
 2. 当某个类的属性对象第一次被观察时，系统就会在运行期动态地创建该类的一个派生类，在这个派生类中重写基类中任何被观察属性的setter 方法。派生类在被重写的setter方法内实现真正的通知机制
 3. 如果原类为Person，那么生成的派生类名为NSKVONotifying_Person
