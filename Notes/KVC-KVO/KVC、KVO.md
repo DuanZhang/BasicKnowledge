@@ -1,31 +1,35 @@
 ### 任务列表
-- [ ] KVC、KVO基础知识以及使用场景
-- [ ] KVC、KVO的底层实现原理
-- [ ] KVC解决了什么问题，如果不使用KVC有什么替代方案,如果实现这个机制，有什么思路
-
-
-#### kVC基础知识 
-- KVC全称是Key Value  Coding，定义在NSKeyValueCoding.h文件中，是一个非正式协议。KVC提供了一种间接访问其属性方法或成员变量的机制，可以通过字符串来访问对应的属性方法或成员变量。
-
+- [ ] `KVC`、`KVO`基础知识
+- [ ] `KVC`、`KVO`使用场景
+- [ ] `KVC`、`KVO`的底层实现原理
+- [ ] `KVC`、`KVO`解决了什么问题
+- [ ] `KVC`、`KVO`的替代方案
+- [ ] `KVO`如何触发
+- [ ] OC、Swift中的区别
+ 
+### KVC
+#### `KVC`基础知识 
+- `KVC`(Key-Value Coding)，定义在NSKeyValueCoding.h文件中，是一个非正式协议。KVC提供了一种间接访问其属性方法或成员变量的机制，可以通过key来访问对应的属性方法或成员变量,而不需要调用明确的存取方法。可以在运行时动态的访问和修改对象的属性。
 
 #### KVC的基本使用
+- 通过key来取值
+> - valueForKey:
+> - valueForKeyPath:
+> - dictionaryWithValuesForKeys:
+> - valueForUndefinedKey:
+> - mutableArrayValueForKey:
+> - mutableArrayValueForKeyPath:
+> - mutableSetValueForKey:
+> - mutableSetValueForKeyPath:
+> - mutableOrderedSetValueForKey:
+> - mutableOrderedSetValueForKeyPath:
+
+
 - 可以访问私有成员变量的值
 
-> 通过KVC给person赋值
-Person *person = [[Person alloc] init];
-[person setValue:@"张三" forKey:@"name"];
-
-<!-- keyPath 
-keyPath包含了所有key的功能
-key:只能访问当前对象的属性
-keyPath:能利用.运算符一层一层往内部访问属性
---->
-
 - 间接修改私有成员变量的值（比如替换系统自带的tabBar）
-
 > 替换系统自带的tabBar,系统的是 readonly
 [self setValue:[[MyTabBar alloc] init] forKeyPath:@"tabBar"];
-
 - 字典转模型
 
 > setValuesForKeysWithDictionary:
@@ -46,15 +50,15 @@ if ([key isEqualToString:@"id"]) {
   }
 }
 
-#### KVC的底层实现
+#### KVC的底层实现（配套有测试的demo）
 当一个对象调用setValue方法时，方法内部会做以下操作
-
 1. 检查是否存在相应key的set方法，如果存在，就调用set方法
 2. 如果set方法不存在，就查找与key相同名称并且带下划线的成员属性，如果有直接给成员属性赋值
 3. 如果还没有找到_key，则查找相同名称的属性key，如果有就直接赋值(按 _key, _isKey，key, iskey的顺序搜索成员名)
 4. 如果还没有找到则调用valueForUndefinedKey:和setValue:forUndefinedKey: 方法，可以根据需要重写
 
 
+### KVO
 #### KVO的基本知识
 KVO即Key Value Observing,利用一个key来找到某个属性并监听其值得改变。其实这也是一种典型的观察者模式。
 #### KVO的基本用法
@@ -88,8 +92,11 @@ KVO即Key Value Observing,利用一个key来找到某个属性并监听其值得
 
 #### 相关链接
 [KVC&KVO](https://www.jianshu.com/p/f1393d10109d)
+
 [KVO的底层实现原理](https://www.jianshu.com/p/829864680648)
+
 [KVC/KVO原理详解及编程指南](https://blog.csdn.net/iunion/article/details/46890809)
+
 [isa-swizzling](http://www.pluto-y.com/isa-swizzling-and-runtime/)
 
 
