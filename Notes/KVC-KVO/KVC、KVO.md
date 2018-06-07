@@ -14,8 +14,8 @@
 #### KVC的基本使用
 以下为官方文档中提供的方法
 - 通过key来取值
-    ``` valueForKey:
-valueForKeyPath:
+1. valueForKey:
+2. valueForKeyPath:
 3. dictionaryWithValuesForKeys:
 4. valueForUndefinedKey:
 5. mutableArrayValueForKey:
@@ -24,7 +24,7 @@ valueForKeyPath:
 8. mutableSetValueForKeyPath:
 9. mutableOrderedSetValueForKey:
 10. mutableOrderedSetValueForKeyPath:
-```
+
 - 通过key来设值
 1. setValue:forKeyPath:
 2. setValuesForKeysWithDictionary:
@@ -39,24 +39,19 @@ valueForKeyPath:
 1. validateValue:forKey:error:
 2. validateValue:forKeyPath:error:
 
-
-- 可以访问私有成员变量的值
-
-- 间接修改私有成员变量的值（比如替换系统自带的tabBar）
+#### `KVC`使用场景
+- 动态取值和设值
+- 访问、修改私有成员变量的值（比如替换系统自带的tabBar）
 > 替换系统自带的tabBar,系统的是 readonly
 [self setValue:[[MyTabBar alloc] init] forKeyPath:@"tabBar"];
 - 字典转模型
-
-> setValuesForKeysWithDictionary:
-
-异常处理
+- 操作集合
+- 异常处理
 1. 模型里的属性要和JSON 解析的值一致
 
 > -(id)valueForUndefinedKey:(NSString *)key{
     return nil;
 }
-
-
 2. 模型中的属性与json解析中的不一致的字段（例如id等和系统关键字冲突的属性）
 
 > -(void)setValue:(id)value forUndefinedKey:(NSString *)key{ 
@@ -64,6 +59,7 @@ if ([key isEqualToString:@"id"]) {
     [self setValue:value forKey:@"ID"]; 
   }
 }
+- `KVC`中使用KeyPath
 
 #### KVC的底层实现（配套有测试的demo）
 当一个对象调用setValue方法时，方法内部会做以下操作
@@ -71,6 +67,10 @@ if ([key isEqualToString:@"id"]) {
 2. 如果set方法不存在，就查找与key相同名称并且带下划线的成员属性，如果有直接给成员属性赋值
 3. 如果还没有找到_key，则查找相同名称的属性key，如果有就直接赋值(按 _key, _isKey，key, iskey的顺序搜索成员名)
 4. 如果还没有找到则调用valueForUndefinedKey:和setValue:forUndefinedKey: 方法，可以根据需要重写
+
+#### KVC内部实现机制
+
+
 
 
 ### KVO
@@ -113,5 +113,7 @@ KVO即Key Value Observing,利用一个key来找到某个属性并监听其值得
 [KVC/KVO原理详解及编程指南](https://blog.csdn.net/iunion/article/details/46890809)
 
 [isa-swizzling](http://www.pluto-y.com/isa-swizzling-and-runtime/)
+
+[详解KVC](https://www.jianshu.com/p/45cbd324ea65)
 
 
