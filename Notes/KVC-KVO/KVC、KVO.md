@@ -55,7 +55,265 @@ KVC(Key-Value Coding)，定义在NSKeyValueCoding.h文件中，是一个非正�
 4. 如果还没有找到则调用`setValue:forUndefinedKey:`方法,默认是抛出异常
 - 当一个对象调用`valueForKey`方法时，方法内部做如下操作（暂缺）
 
+#### KVC 源码分析
 
+参考GNUStep源码
+
+> NSKeyValueCoding
+
+```
+- (void) setValue: (id)anObject forKey: (NSString*)aKey
+{
+  unsigned	size = [aKey length] * 8;
+  char		key[size + 1];
+#ifdef WANT_DEPRECATED_KVC_COMPAT
+  IMP   	o = [self methodForSelector: @selector(takeValue:forKey:)];
+
+  setupCompat();
+  if (o != takeValue && o != takeValueKVO)
+    {
+      (*o)(self, @selector(takeValue:forKey:), anObject, aKey);
+      return;
+    }
+#endif
+
+  [aKey getCString: key
+	 maxLength: size + 1
+	  encoding: NSUTF8StringEncoding];
+  size = strlen(key);
+  SetValueForKey(self, anObject, key, size);
+}
+
+```
+
+> NSString -> char[] 取出length 
+> 
+> 调用 SetValueForKey
+
+```
+
+static void
+SetValueForKey(NSObject *self, id anObject, const char *key, unsigned size)
+{
+  SEL		sel = 0;			// sel
+  const char	*type = 0;	// 数据类型
+  int		off = 0;			// 偏移量
+
+  if (size > 0)
+    {
+      const char	*name;     			// selector name
+      char		buf[size + 6];		// ?
+      char		lo;						// 低地址
+      char		hi;						// 高地址
+
+      strncpy(buf, "_set", 4);
+      strncpy(&buf[4], key, size);	
+      lo = buf[4];
+      hi = islower(lo) ? toupper(lo) : lo;
+      buf[4] = hi;
+      buf[size + 4] = ':';
+      buf[size + 5] = '\0';			// 	比如key叫foo 生成set方法名 _setFoo:
+
+      name = &buf[1];	// setKey:
+      type = NULL;
+      sel = sel_getUid(name);
+      if (sel == 0 || [self respondsToSelector: sel] == NO)
+	{
+	  name = buf;	// _setKey:
+	  sel = sel_getUid(name);
+	  if (sel == 0 || [self respondsToSelector: sel] == NO)
+	    {
+	      sel = 0;
+	      if ([[self class] accessInstanceVariablesDirectly] == YES)
+		{
+		  buf[size + 4] = '\0';
+		  buf[3] = '_';
+		  buf[4] = lo;
+		  name = &buf[3];	// _key
+		  if (GSObjCFindVariable(self, name, &type, &size, &off) == NO)
+		    {
+		      buf[4] = hi;
+		      buf[3] = 's';
+		      buf[2] = 'i';
+		      buf[1] = '_';
+		      name = &buf[1];	// _isKey
+		      if (GSObjCFindVariable(self,
+			name, &type, &size, &off) == NO)
+			{
+			  buf[4] = lo;
+			  name = &buf[4];	// key
+			  if (GSObjCFindVariable(self,
+			    name, &type, &size, &off) == NO)
+			    {
+			      buf[4] = hi;
+			      buf[3] = 's';
+			      buf[2] = 'i';
+			      name = &buf[2];	// isKey
+			      GSObjCFindVariable(self,
+				name, &type, &size, &off);
+			    }
+			}
+		    }
+		}
+	    }
+	  else
+	    {
+	      GSOnceFLog(@"Key-value access using _setKey: is deprecated:");
+	    }
+	}
+    }
+  GSObjCSetVal(self, key, anObject, sel, type, size, off);
+}
+
+
+```
+> 寻找路径: setKey: ? _setKey: ? 如果setter方法没找到, ([[self class] accessInstanceVariablesDirectly] == YES) 寻找实例变量, 否则抛出异常
+> 
+> 实例变量寻找路径: _key? ,  _isKey? , key, isKey
+
+```
+BOOL
+GSObjCFindVariable(id obj, const char *name,
+  const char **type, unsigned int *size, int *offset)
+{
+  Class		class = object_getClass(obj);
+  Ivar		ivar = class_getInstanceVariable(class, name);
+
+  if (ivar == 0)
+    {
+      return NO;
+    }
+  else
+    {
+      const char	*enc = ivar_getTypeEncoding(ivar);
+
+      if (type != 0)
+	{
+	  *type = enc;
+	}
+      if (size != 0)
+	{
+	  NSUInteger	s;
+	  NSUInteger	a;
+
+	  NSGetSizeAndAlignment(enc, &s, &a);
+	  *size = s;
+	}
+      if (offset != 0)
+	{
+	  *offset = ivar_getOffset(ivar);
+	}
+      return YES;
+    }
+}
+
+```
+> 寻找实例变量偏移量逻辑:
+> Ivar		ivar = class_getInstanceVariable(class, name);
+> *offset = ivar_getOffset(ivar);
+
+```
+void
+GSObjCSetVal(NSObject *self, const char *key, id val, SEL sel,
+  const char *type, unsigned size, int offset)
+{
+  static NSNull		*null = nil;
+  NSMethodSignature	*sig = nil;
+
+  if (null == nil)
+    {
+      null = [NSNull new];
+    }
+  if (sel != 0)
+    {
+      sig = [self methodSignatureForSelector: sel];
+      if ([sig numberOfArguments] != 3)
+	{
+	  [NSException raise: NSInvalidArgumentException
+		      format: @"key-value set method has wrong number of args"];
+	}
+      type = [sig getArgumentTypeAtIndex: 2];
+    }
+  if (type == NULL)
+    {
+      [self setValue: val forUndefinedKey:
+	[NSString stringWithUTF8String: key]];
+    }
+  else if ((val == nil || val == null) && *type != _C_ID && *type != _C_CLASS)
+    {
+      [self setNilValueForKey: [NSString stringWithUTF8String: key]];
+    }
+  else
+    {
+      switch (*type)
+	{
+	  case _C_ID:
+	  case _C_CLASS:
+	    {
+	      id	v = val;
+
+	      if (sel == 0)
+		{
+		  id *ptr = (id *)((char *)self + offset);
+
+		  ASSIGN(*ptr, v);
+		}
+	      else
+		{
+		  void	(*imp)(id, SEL, id) =
+		    (void (*)(id, SEL, id))[self methodForSelector: sel];
+
+		  (*imp)(self, sel, val);
+		}
+	    }
+	    break;
+
+	  case _C_CHR:
+	    {
+	      char	v = [val charValue];
+
+	      if (sel == 0)
+		{
+		  char *ptr = (char *)((char *)self + offset);
+
+		  *ptr = v;
+		}
+	      else
+		{
+		  void	(*imp)(id, SEL, char) =
+		    (void (*)(id, SEL, char))[self methodForSelector: sel];
+
+		  (*imp)(self, sel, v);
+		}
+	    }
+	    break;
+
+```
+
+> 赋值逻辑: 如果有sel 直接调用imp
+> 如果是实例变量 直接改变实例变量的指针指向 *ptr = v
+
+```
+
+char	v = [val charValue];
+
+	      if (sel == 0)
+		{
+		  char *ptr = (char *)((char *)self + offset);
+
+		  *ptr = v;
+		}
+	      else
+		{
+		  void	(*imp)(id, SEL, char) =
+		    (void (*)(id, SEL, char))[self methodForSelector: sel];
+
+		  (*imp)(self, sel, v);
+		}
+
+```
+
+#### NEXT: 为何如此设计?
 
 
 
