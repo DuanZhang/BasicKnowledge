@@ -47,7 +47,7 @@ KVC(Key-Value Coding)，定义在NSKeyValueCoding.h文件中，是一个非正�
 - 操作集合
 - `KVC`中使用KeyPath(暂缺)
 
-#### KVC的底层实现（配套有测试的demo）
+#### KVC的底层实现
 - 当一个对象调用`setValue:forKey:`方法时，方法内部会做以下操作
 1. 检查是否存在相应key的setter方法，如果存在，就调用
 2. 如果set方法不存在,并且`accessInstanceVariablesDirectly`为默认值，就查找与key相同名称并且带下划线的成员属性，如果有直接给成员属性赋值
@@ -125,6 +125,8 @@ KVO(Key-Value Observing),利用一个key来找到某个属性并监听其值的�
 [详解KVC](https://www.jianshu.com/p/45cbd324ea65)
 
 [KVC/KVO原理详解及编程指南](https://blog.csdn.net/iunion/article/details/46890809)
+
+[KVC和KVO](https://objccn.io/issue-7-3/)
 
 [isa-swizzling](http://www.pluto-y.com/isa-swizzling-and-runtime/)
 
